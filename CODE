@@ -1,0 +1,147 @@
+/*
+ * Prelim Activity 02 – Eco-Grid Energy Distributor
+ * Name: [Your Name]
+ * Description:
+ * Demonstrates Inheritance, Encapsulation, Polymorphism,
+ * Method Overloading, and Robust Exception Handling.
+ */
+
+using System;
+
+namespace Surname_ScenarioC
+{
+    // Abstract base class enforces structure
+    abstract class PowerSource
+    {
+        // Private fields (Encapsulation)
+        private string sourceID;
+        private double baseOutput;
+
+        // Public Properties with validation
+        public string SourceID
+        {
+            get { return sourceID; }
+            set { sourceID = value; }
+        }
+
+        public double BaseOutput
+        {
+            get { return baseOutput; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentException("Base output cannot be negative.");
+                baseOutput = value;
+            }
+        }
+
+        // Constructor
+        public PowerSource(string id, double output)
+        {
+            SourceID = id;
+            BaseOutput = output;
+        }
+
+        // Virtual method for polymorphism
+        public virtual void GenerateReport()
+        {
+            Console.WriteLine($"Power Source {SourceID} generating base output of {BaseOutput} kW.");
+        }
+
+        // Overloaded method
+        public virtual void GenerateReport(bool detailed)
+        {
+            if (detailed)
+                Console.WriteLine($"[DETAILED REPORT] ID: {SourceID}, Base Output: {BaseOutput} kW");
+            else
+                GenerateReport();
+        }
+    }
+
+    class SolarPanel : PowerSource
+    {
+        private double sunlightPercent;
+
+        public double SunlightPercent
+        {
+            get { return sunlightPercent; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentException("Sunlight percentage cannot be negative.");
+                sunlightPercent = value;
+            }
+        }
+
+        public SolarPanel(string id, double output, double sunlight)
+            : base(id, output)
+        {
+            SunlightPercent = sunlight;
+        }
+
+        public override void GenerateReport()
+        {
+            double totalOutput = BaseOutput * (SunlightPercent / 100);
+            Console.WriteLine($"Solar Panel [{SourceID}] Output: {totalOutput} kW (Sunlight: {SunlightPercent}%)");
+        }
+    }
+
+    class WindTurbine : PowerSource
+    {
+        private double windSpeed;
+
+        public double WindSpeed
+        {
+            get { return windSpeed; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentException("Wind speed cannot be negative.");
+                windSpeed = value;
+            }
+        }
+
+        public WindTurbine(string id, double output, double wind)
+            : base(id, output)
+        {
+            WindSpeed = wind;
+        }
+
+        public override void GenerateReport()
+        {
+            double totalOutput = BaseOutput * (WindSpeed / 20);
+            Console.WriteLine($"Wind Turbine [{SourceID}] Output: {totalOutput} kW (Wind Speed: {WindSpeed} km/h)");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                PowerSource solar = new SolarPanel("SOL-101", 500, 80);
+                PowerSource wind = new WindTurbine("WND-202", 600, 15);
+
+                solar.GenerateReport();
+                wind.GenerateReport();
+
+                Console.WriteLine("\n--- Detailed Report ---");
+                solar.GenerateReport(true);
+                wind.GenerateReport(true);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"Input Error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected Error: {ex.Message}");
+            }
+            finally
+            {
+                Console.WriteLine("\nSession Ended.");
+            }
+        }
+    }
+}
